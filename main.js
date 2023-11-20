@@ -70,3 +70,40 @@ function addFruits(){
 }
 
 addFruits();
+
+
+// 과일 움직이기
+// 키보드의 입력을 감지하기 위해서 onKeyDown 함수 사용
+window.onkeydown = (evnet) => {
+  // disableAction가 true인 경우 키보드 값을 인식하지 않음. 
+  if(disableAction) return;
+  switch(evnet.code){
+    // A: 과일 왼쪽 이동
+    case "KeyA": 
+      Body.setPosition(currentBody, {
+        x: currentBody.position.x-10,
+        y: currentBody.position.y
+      })
+      break;
+
+    // D: 과일 오른쪽 이동
+    case "KeyD": 
+      Body.setPosition(currentBody, {
+        x: currentBody.position.x+10,
+        y: currentBody.position.y
+      })
+      break;
+
+    // S: 과일 떨어뜨리기  
+    // 과일을 떨어뜨리는 동시에 새 과일 추가. 그리고 1초동안 키보드 값을 인식하지 않음.
+    case "KeyS": 
+      currentBody.isSleeping = false;
+      disableAction = true;
+
+      setTimeout(() => {
+        addFruits()
+        disableAction = false;
+      }, 1000);
+      break;
+  }
+}
