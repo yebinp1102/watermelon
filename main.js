@@ -1,4 +1,4 @@
-import { Bodies, Engine, Render, World, Runner, Body } from "matter-js";
+import { Bodies, Engine, Render, World, Runner, Body, Events } from "matter-js";
 import { FRUITS_BASE } from './fruits.js';
 
 const engine = Engine.create();
@@ -69,9 +69,6 @@ function addFruits(){
   World.add(world, body);
 }
 
-addFruits();
-
-
 // 과일 움직이기
 // 키보드의 입력을 감지하기 위해서 onKeyDown 함수 사용
 window.onkeydown = (evnet) => {
@@ -107,3 +104,41 @@ window.onkeydown = (evnet) => {
       break;
   }
 }
+
+// collisionStart: 충돌이 시작될 때 이벤트 함수 호출
+Events.on(engine, "collisionStart", (event) => {
+
+  event.pairs.forEach((collision) => {
+
+    // 두개의 과일이 충돌 했을 때, 같은 과일인지 확인
+    if(collision.bodyA.index === collision.bodyB.index){
+
+      // 충돌한 과일의 인덱스 번호
+      const index = collision.bodyA.index;
+
+      // 충돌한 두 과일이 수박이면 다음 과일이 없으니 이벤트 함수 종료
+      if(index === FRUITS_BASE.length-1) return;
+
+      // 충돌한 과일이 같은 과일이면 둘 다 제거
+      World.remove(world, [collision.bodyA, collision.bodyB])
+
+      // 과일이 없어진 자리에 다음 단계의 과일이 하나 등장
+      const newFruit = FRUITS_BASE[index+1];
+      const newBody = Bodies.circle(
+        collision.collision.supports[0].x, // 부딪힌 지점의 X 좌표
+        collision.collision.supports[0].y, // 부딪힌 지점의 Y 좌표
+        newFruit.radius,
+        {
+          render: {
+            sprite: {texture: `${newFruit.name}.png`}
+          },
+          index: index+1
+        }
+      )
+
+      World.add(world, newBody);
+    }
+  })
+})
+
+addFruits();
