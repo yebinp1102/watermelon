@@ -47,6 +47,7 @@ Runner.run(engine);
 let currentBody = null; // 현재 조작 가능한 과일의 좌표
 let currentFruit = null; // 현재 조작한 과일의 이름, 이미지
 let disableAction = false; // 과일 드랍 후 딜레이 주기 위한 상태값
+let interval = null;
 
 
 // 과일 생성
@@ -78,20 +79,26 @@ window.onkeydown = (evnet) => {
   switch(evnet.code){
     // A: 과일 왼쪽 이동
     case "KeyA": 
-      if(currentBody.position.x - currentFruit.radius > 30)
-        Body.setPosition(currentBody, {
-        x: currentBody.position.x-10,
-        y: currentBody.position.y
-      })
+      if(interval) return;
+      interval = setInterval(() => {
+        if(currentBody.position.x - currentFruit.radius > 30)
+          Body.setPosition(currentBody, {
+          x: currentBody.position.x-1,
+          y: currentBody.position.y
+        })
+      }, 5)
       break;
 
     // D: 과일 오른쪽 이동
     case "KeyD": 
-    if(currentBody.position.x + currentFruit.radius < 590)
-      Body.setPosition(currentBody, {
-        x: currentBody.position.x+10,
-        y: currentBody.position.y
-      })
+      if(interval) return;
+      interval = setInterval(() => {
+        if(currentBody.position.x + currentFruit.radius < 590)
+          Body.setPosition(currentBody, {
+            x: currentBody.position.x+1,
+            y: currentBody.position.y
+          })
+      }, 5)
       break;
 
     // S: 과일 떨어뜨리기  
@@ -105,6 +112,16 @@ window.onkeydown = (evnet) => {
         disableAction = false;
       }, 1000);
       break;
+  }
+}
+
+// 방향키를 때면 interval 멈추게 함
+window.onkeyup = (event) => {
+  switch(event.code){
+    case "KeyA":
+    case "KeyD":
+      clearInterval(interval);
+      interval = null;
   }
 }
 
@@ -142,9 +159,10 @@ Events.on(engine, "collisionStart", (event) => {
       World.add(world, newBody);
     }
 
-    // 과일을 떨어뜨릴 땐 topLine에 닿아도 됨.
+    // 과일을 떨어뜨리고 1초간 topLine에 닿아도 됨.
     if(!disableAction && (collision.bodyA.name === "topLine" || collision.bodyB.name === "topLine")){
       alert("Game Over");
+      location.reload(true); // 페이지 새로고침
     }
   })
 })
