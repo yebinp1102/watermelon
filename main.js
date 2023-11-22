@@ -33,6 +33,7 @@ const groundWall = Bodies.rectangle(310, 820, 620, 60, {
 
 // game over line
 const topLine = Bodies.rectangle(310, 150, 620, 2, {
+  name: "topLine",
   isStatic: true,
   isSensor: true, // 과일이 topLine에 걸리지 않도록 설정. true 설정 시 부딪히지 않고 감지 기능만 갖게됨.
   render: {fillStyle: "#E6B143"}
@@ -77,7 +78,8 @@ window.onkeydown = (evnet) => {
   switch(evnet.code){
     // A: 과일 왼쪽 이동
     case "KeyA": 
-      Body.setPosition(currentBody, {
+      if(currentBody.position.x - currentFruit.radius > 30)
+        Body.setPosition(currentBody, {
         x: currentBody.position.x-10,
         y: currentBody.position.y
       })
@@ -85,6 +87,7 @@ window.onkeydown = (evnet) => {
 
     // D: 과일 오른쪽 이동
     case "KeyD": 
+    if(currentBody.position.x + currentFruit.radius < 590)
       Body.setPosition(currentBody, {
         x: currentBody.position.x+10,
         y: currentBody.position.y
@@ -137,6 +140,11 @@ Events.on(engine, "collisionStart", (event) => {
       )
 
       World.add(world, newBody);
+    }
+
+    // 과일을 떨어뜨릴 땐 topLine에 닿아도 됨.
+    if(!disableAction && (collision.bodyA.name === "topLine" || collision.bodyB.name === "topLine")){
+      alert("Game Over");
     }
   })
 })
